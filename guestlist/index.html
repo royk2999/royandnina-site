@@ -235,9 +235,10 @@
     .result-card-body-inner { overflow: hidden; }
 
     /* "You're sitting with:" section */
-    /* padding-top: 40px = Figma gap between name-table and this section */
+    /* Figma gap between name-table and this section is 24px; the header
+       already contributes 16px of bottom padding, so 8px lands it at 24. */
     .result-card-tablemates {
-      padding: 40px 16px 16px;
+      padding: 8px 16px 16px;
       display: flex;
       flex-direction: column;
       gap: 8px;
