@@ -20,7 +20,12 @@
       --card-border: rgba(59, 59, 59, 0.2);
     }
 
-    html { font-size: 16px; }
+    /* scrollbar-gutter reserves the scrollbar lane at all times, so results
+       appearing/clearing can't change content width and shift the layout. */
+    html {
+      font-size: 16px;
+      scrollbar-gutter: stable;
+    }
 
     body {
       background: var(--tan);
