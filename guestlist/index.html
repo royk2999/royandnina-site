@@ -172,10 +172,10 @@
       width: 100%;
     }
 
-    /* IvyOra Text Medium, 20px — card guest name */
+    /* IvyOra Text Regular, 20px — card guest name (Figma 1048:1122) */
     .result-name {
       font-family: "ivyora-text", serif;
-      font-weight: 500;
+      font-weight: 400;
       font-style: normal;
       font-size: 20px;
       line-height: normal;
@@ -482,7 +482,7 @@
             aria-label="Search for your name"
           >
           <button id="searchBtn" class="search-btn" type="button" aria-label="Search">
-            <img src="../assets/search-arrow.svg" alt="" aria-hidden="true">
+            <img id="searchIcon" src="../assets/search-arrow.svg" alt="" aria-hidden="true">
           </button>
         </div>
 
@@ -948,6 +948,7 @@
     // ── Event wiring ──────────────────────────────────────────
     const searchInput    = document.getElementById('searchInput');
     const searchBtn      = document.getElementById('searchBtn');
+    const searchIcon     = document.getElementById('searchIcon');
     const tableToggle    = document.getElementById('tableToggle');
     const tableListWrap  = document.getElementById('tableListWrap');
     const tableIcon      = document.getElementById('tableIcon');
@@ -955,11 +956,23 @@
     const guestListWrap  = document.getElementById('guestListWrap');
     const guestIcon      = document.getElementById('guestIcon');
 
+    // Arrow icon while empty; X (clear) icon once there's text
+    function syncSearchIcon() {
+      const hasText = searchInput.value.length > 0;
+      searchIcon.src = hasText ? '../assets/search-x.svg' : '../assets/search-arrow.svg';
+      searchBtn.setAttribute('aria-label', hasText ? 'Clear search' : 'Search');
+    }
+
     searchInput.addEventListener('input', () => {
       renderResults(runSearch(searchInput.value));
+      syncSearchIcon();
     });
 
     searchBtn.addEventListener('click', () => {
+      if (searchInput.value.length > 0) {
+        searchInput.value = '';
+        syncSearchIcon();
+      }
       renderResults(runSearch(searchInput.value));
       searchInput.focus();
     });
