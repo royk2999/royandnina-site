@@ -1,0 +1,15 @@
+{
+  "routes": [
+    {
+      "src": "^/$",
+      "status": 307,
+      "headers": { "Location": "https://withjoy.com/roy-and-nina" }
+    },
+    { "handle": "filesystem" },
+    {
+      "src": "/(.*)",
+      "status": 302,
+      "headers": { "Location": "https://withjoy.com/roy-and-nina" }
+    }
+  ]
+}

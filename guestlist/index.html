@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>find your table — Nina &amp; Roy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.typekit.net/xjy6lud.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --tan:         #ede3d4;
+      --gray:        #3b3b3b;
+      --black:       #333;
+      --green:       #525d3c;
+      --border:      rgba(59, 59, 59, 0.1);
+      --card-border: rgba(59, 59, 59, 0.2);
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      background: var(--tan);
+      color: var(--gray);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Page shell ───────────────────────────────────────── */
+    .page {
+      max-width: 390px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* ── Logo cap ─────────────────────────────────────────── */
+    .logo-cap { padding-top: 32px; }
+
+    .monogram {
+      display: block;
+      height: 90px;
+      width: auto;
+    }
+
+    /* ── Section body ─────────────────────────────────────── */
+    .section-body {
+      display: flex;
+      flex-direction: column;
+      gap: 80px;
+      padding: 32px 0 48px;
+    }
+
+    /* ── Section hero ─────────────────────────────────────── */
+    .section-hero {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* H1 — IvyOra Text Regular, 56px */
+    .hero-title {
+      font-family: "ivyora-text", serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 56px;
+      line-height: 0.998;
+      letter-spacing: -1.12px;
+      color: var(--gray);
+    }
+
+    /* ── Search bar ───────────────────────────────────────── */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      transition: box-shadow 0.15s;
+    }
+    .search-bar:focus-within {
+      box-shadow: 0 0 0 2px rgba(82, 93, 60, 0.22);
+    }
+
+    /* IvyOra Text Italic, 20px — placeholder state */
+    .search-input {
+      flex: 1 0 0;
+      min-width: 0;
+      font-family: "ivyora-text", serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 20px;
+      letter-spacing: -0.4px;
+      color: var(--black);
+      caret-color: var(--black);
+      background: transparent;
+      border: none;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    /* Placeholder: IvyOra Text Italic, faded gray */
+    .search-input::placeholder {
+      font-style: italic;
+      color: rgba(59, 59, 59, 0.5);
+    }
+
+    .search-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      margin: -10px -10px -10px 0;
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      -webkit-appearance: none;
+    }
+    .search-btn img { display: block; width: 24px; height: 24px; }
+
+    /* ── Results region ───────────────────────────────────── */
+    .results-region {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .results-region[hidden] { display: none; }
+
+    /* ── Result card (collapsed) ──────────────────────────── */
+    .result-card {
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    /* Card header — tappable button covering name + table + chevron */
+    .result-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      width: 100%;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      -webkit-appearance: none;
+    }
+
+    .result-card-text {
+      flex: 1 0 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Figma: py-4px wrapper around each text in the name-table column */
+    .result-text-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-block: 4px;
+      width: 100%;
+    }
+
+    /* IvyOra Text Medium, 20px — card guest name */
+    .result-name {
+      font-family: "ivyora-text", serif;
+      font-weight: 500;
+      font-style: normal;
+      font-size: 20px;
+      line-height: normal;
+      letter-spacing: -0.4px;
+      color: #000;
+      opacity: 0.7;
+      flex: 1 0 0;
+      min-width: 0;
+      word-break: break-word;
+    }
+
+    /* IvyOra Text Medium, 32px — table number */
+    /* line-height:1 not 56px — 56px is a Figma text-box-trim artifact */
+    .result-table {
+      font-family: "ivyora-text", serif;
+      font-weight: 500;
+      font-style: normal;
+      font-size: 32px;
+      line-height: 1;
+      letter-spacing: -0.64px;
+      color: var(--gray);
+      flex: 1 0 0;
+      min-width: 0;
+    }
+
+    /* Chevron — points right collapsed; rotates 90° CW to point down when expanded */
+    /* Collapse uses base 200ms, expand uses 400ms from .expanded override */
+    .result-chevron {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .result-chevron img { display: block; width: 24px; height: 24px; }
+
+    .result-card.expanded .result-chevron {
+      transform: rotate(90deg);
+      transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* ── Card expanded body (grid animation) ──────────────── */
+    /* Collapse: 200ms fast. Expand: 400ms slow (overridden in .expanded). */
+    .result-card-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .result-card.expanded .result-card-body {
+      grid-template-rows: 1fr;
+      transition: grid-template-rows 400ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .result-card-body-inner { overflow: hidden; }
+
+    /* "You're sitting with:" section */
+    /* padding-top: 40px = Figma gap between name-table and this section */
+    .result-card-tablemates {
+      padding: 40px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* IvyOra Text Regular, 14px — "You're sitting with:" label */
+    .tablemates-label {
+      font-family: "ivyora-text", serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14px;
+      line-height: normal;
+      color: var(--black);
+      white-space: nowrap;
+    }
+
+    .tablemates-list { display: flex; flex-direction: column; }
+
+    .tablemate-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .tablemate-row:last-child { border-bottom: none; }
+
+    /* Courier Prime Regular, 14px — tablemate names */
+    .tablemate-name {
+      font-family: "Courier Prime", monospace;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14px;
+      line-height: 29px;
+      letter-spacing: 0.42px;
+      color: var(--black);
+    }
+
+    /* ── No results ───────────────────────────────────────── */
+    .no-results-block {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 12px;
+    }
+
+    /* IvyOra Text Medium, 24px */
+    .no-results-title {
+      font-family: "ivyora-text", serif;
+      font-weight: 500;
+      font-style: normal;
+      font-size: 24px;
+      line-height: normal;
+      letter-spacing: -0.48px;
+      color: #000;
+      opacity: 0.7;
+    }
+
+    /* IvyOra Text Italic, 16px */
+    .no-results-sub {
+      font-family: "ivyora-text", serif;
+      font-weight: 400;
+      font-style: italic;
+      font-size: 16px;
+      line-height: normal;
+      letter-spacing: 0.32px;
+      color: #000;
+      opacity: 0.7;
+    }
+
+    /* ── Footer wrap ──────────────────────────────────────── */
+    .footer-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* ── Browse button group ──────────────────────────────── */
+    .browse-button-group { display: flex; flex-direction: column; }
+
+    /* "Browse by table" — border-top only */
+    .browse-wrapper--table { border-top: 1px solid var(--border); }
+
+    /* "Browse by guest" — border-top + border-bottom */
+    .browse-wrapper--guest {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Toggle button row */
+    .browse-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 16px 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      min-height: 44px;
+      -webkit-appearance: none;
+    }
+
+    .browse-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .browse-icon img { display: block; width: 24px; height: 24px; }
+
+    /* IvyOra Text Medium, 16px — toggle label */
+    .browse-label {
+      font-family: "ivyora-text", serif;
+      font-weight: 500;
+      font-style: normal;
+      font-size: 16px;
+      line-height: normal;
+      color: var(--green);
+      white-space: nowrap;
+    }
+
+    /* ── Browse list (grid-row animation) ─────────────────── */
+    .browse-list-wrap {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 320ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .browse-list-wrap.open { grid-template-rows: 1fr; }
+    .browse-list-inner { overflow: hidden; }
+
+    .browse-list {
+      padding: 16px 0;
+      padding-left: 32px;
+    }
+
+    .browse-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      width: 310px;
+    }
+    .browse-item:last-child { border-bottom: none; }
+
+    /* Courier Prime Regular, 14px — guest name column */
+    .browse-col-name {
+      font-family: "Courier Prime", monospace;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14px;
+      line-height: 29px;
+      letter-spacing: 0.42px;
+      color: var(--black);
+    }
+
+    /* Courier Prime Bold Italic, 14px — table number column */
+    .browse-col-table {
+      font-family: "Courier Prime", monospace;
+      font-weight: 700;
+      font-style: italic;
+      font-size: 14px;
+      line-height: 29px;
+      letter-spacing: 0.42px;
+      color: var(--gray);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── Footer event block ───────────────────────────────── */
+    .footer {
+      padding: 32px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* IvyOra Text Regular, 38px */
+    .footer-title {
+      font-family: "ivyora-text", serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 38px;
+      line-height: 1.08;
+      letter-spacing: -0.76px;
+      color: var(--gray);
+    }
+
+    /* IvyOra Text Italic, 24px */
+    .footer-sub {
+      font-family: "ivyora-text", serif;
+      font-weight: 400;
+      font-style: italic;
+      font-size: 24px;
+      line-height: normal;
+      letter-spacing: -0.48px;
+      color: var(--gray);
+    }
+
+    /* ── Row fade-in animation ───────────────────────────────── */
+    @keyframes row-in {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .result-card-body,
+      .result-card.expanded .result-card-body,
+      .browse-list-wrap { transition: none; }
+      .result-chevron,
+      .result-card.expanded .result-chevron { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page">
+
+    <div class="logo-cap">
+      <img class="monogram" src="../assets/rn-monogram.png" alt="">
+    </div>
+
+    <div class="section-body">
+
+      <!-- ── Search + results ── -->
+      <div class="section-hero">
+
+        <h1 class="hero-title">Let's find your table!</h1>
+
+        <div class="search-bar">
+          <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search name..."
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            aria-label="Search for your name"
+          >
+          <button id="searchBtn" class="search-btn" type="button" aria-label="Search">
+            <img src="../assets/search-arrow.svg" alt="" aria-hidden="true">
+          </button>
+        </div>
+
+        <div id="resultsRegion" class="results-region" aria-live="polite" hidden></div>
+
+      </div>
+
+      <!-- ── Browse + footer ── -->
+      <div class="footer-wrap">
+
+        <div class="browse-button-group">
+
+          <!-- Browse by table -->
+          <div class="browse-wrapper browse-wrapper--table">
+            <button
+              class="browse-toggle"
+              id="tableToggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="tableListWrap"
+            >
+              <span class="browse-icon" id="tableIcon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="8" y1="2" x2="8" y2="14" stroke="#525d3c" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="2" y1="8" x2="14" y2="8" stroke="#525d3c" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="browse-label">Browse by table</span>
+            </button>
+            <div class="browse-list-wrap" id="tableListWrap">
+              <div class="browse-list-inner">
+                <div class="browse-list" id="tableList" role="list"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Browse by guest -->
+          <div class="browse-wrapper browse-wrapper--guest">
+            <button
+              class="browse-toggle"
+              id="guestToggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="guestListWrap"
+            >
+              <span class="browse-icon" id="guestIcon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="8" y1="2" x2="8" y2="14" stroke="#525d3c" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="2" y1="8" x2="14" y2="8" stroke="#525d3c" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="browse-label">Browse by guest</span>
+            </button>
+            <div class="browse-list-wrap" id="guestListWrap">
+              <div class="browse-list-inner">
+                <div class="browse-list" id="guestList" role="list"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="footer">
+          <p class="footer-title">Nina &amp; Roy's wedding reception at Mon Cheri on August 28th, 2026</p>
+          <p class="footer-sub">Time to eat and party!</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const guests = [
+      {first:'Rebecca', last:'Phung', table:'1'},
+      {first:'Sean', last:'Ma', table:'1'},
+      {first:'Elaine', last:'Xin', table:'1'},
+      {first:'Lanie', last:'Buiquy', table:'1'},
+      {first:'Joanne', last:'Chan', table:'1'},
+      {first:'Joseph', last:'Chan', table:'1'},
+      {first:'Michela', last:'Sun', table:'1'},
+      {first:'Nathan', last:'Sun', table:'1'},
+      {first:'Yvette', last:'Wei', table:'1'},
+      {first:'Cole', last:'Hassenfratz', table:'1'},
+      {first:'Irene', last:'Ear', table:'1'},
+      {first:'Lauren', last:'Saito', table:'1'},
+      {first:'Katalina', last:'Park', table:'1'},
+      {first:'Diane', last:'Huynh', table:'1'},
+      {first:'Foster', last:'Donnell', table:'1'},
+      {first:'Lilly', last:'Tran', table:'1'},
+      {first:'Miguel', last:'Olmedo', table:'1'},
+      {first:'Katherine', last:'Perez', table:'1'},
+      {first:'Colin', last:'Leung', table:'1'},
+      {first:'Julie', last:'Hu', table:'1'},
+      {first:'Steven', last:'Chow', table:'1'},
+      {first:'Keith', last:'Leung', table:'1'},
+      {first:'Christopher', last:'Duong', table:'1'},
+      {first:'Brittany', last:'Lee', table:'1'},
+      {first:'Jackson', last:'Tsoi', table:'1'},
+      {first:'Nicholas', last:'Chen', table:'1'},
+      {first:'Emily', last:'Wong', table:'1'},
+      {first:'Gabriel', last:'Larot', table:'1'},
+      {first:'Sandy', last:'Wu', table:'1'},
+      {first:'Engelbert', last:'Diec', table:'1'},
+      {first:'Andrew', last:'Luu', table:'1'},
+      {first:'Alana', last:'Sanchez-Prak', table:'1'},
+      {first:'Rochelle', last:'Yuan', table:'1'},
+      {first:'Phuong', last:'Ly', table:'1'},
+      {first:'Kayla', last:'Van', table:'1'},
+      {first:'Connie', last:'Van', table:'1'},
+      {first:'Mui Ha', last:'Van', table:'1'},
+      {first:'Viviana', last:'Van', table:'1'},
+      {first:'Marc', last:'Iwamoto', table:'1'},
+      {first:'Kevin', last:'Hua', table:'1'},
+      {first:'Mai', last:'Nichols', table:'1'},
+      {first:'Tran', last:'Ly', table:'1'},
+      {first:'Nikki', last:'Nguyen', table:'1'},
+      {first:'Helen', last:'Nguyen', table:'1'},
+      {first:'Marcus', last:'Le', table:'1'},
+      {first:'Sandra', last:'He', table:'1'},
+      {first:'Alex', last:'Fischer', table:'1'},
+      {first:'Yolie', last:'Liang', table:'1'},
+      {first:'Oleg', last:'Vaskevich', table:'1'},
+      {first:'Hiep', last:'Tran', table:'1'},
+      {first:'David', last:'Lee', table:'1'},
+      {first:'Tyler', last:'Horton', table:'1'},
+      {first:'Elle', last:'Nguyen', table:'1'},
+      {first:'Brittany', last:'Xiao', table:'1'},
+      {first:'Jestin', last:'Ma', table:'1'},
+      {first:'Justin', last:'Yeh', table:'1'},
+      {first:'Aiza', last:'Chynalieva', table:'1'},
+      {first:'Adam', last:'Luong', table:'1'},
+      {first:'Elizabelle', last:'Ruan', table:'1'},
+      {first:'Baldwin', last:'Liwanag', table:'1'},
+      {first:'Ashley', last:'Truong', table:'1'},
+      {first:'Linh', last:'Ly', table:'1'},
+      {first:'Tri', last:'Nguyen', table:'1'},
+      {first:'Cameryn', last:'Nguyen', table:'1'},
+      {first:'Thu', last:'Ly', table:'1'},
+      {first:'Mui', last:'Nguy', table:'1'},
+      {first:'Tiffanie', last:'Phong', table:'1'},
+      {first:'Bryan', last:'Phan', table:'1'},
+      {first:'Andrew', last:'Ly', table:'1'},
+      {first:'Hana', last:'Le', table:'1'},
+      {first:'Ella', last:'Ly', table:'1'},
+      {first:'Olivia', last:'Ly', table:'1'},
+      {first:'William', last:'Xu', table:'1'},
+      {first:'Miao-Chun', last:'Xu', table:'1'},
+      {first:'Tiffany', last:'Van', table:'1'},
+      {first:'Nick', last:'Tang', table:'1'},
+      {first:'Brandon', last:'Tang', table:'1'},
+      {first:'Benjamin', last:'Tang', table:'1'},
+      {first:'Connor', last:'Schmid', table:'1'},
+      {first:'Thomas', last:'Van', table:'1'},
+      {first:'Peter', last:'Van', table:'1'},
+      {first:'Hue', last:'Luong', table:'1'},
+      {first:'Cuong', last:'Van', table:'1'},
+      {first:'Katie', last:'Chi', table:'1'},
+      {first:'Steven', last:'Nguyen', table:'1'},
+      {first:'Logan', last:'Schmid', table:'1'},
+      {first:'Taylor', last:'Tenn', table:'1'},
+      {first:'Hector', last:'Carrillo', table:'1'},
+      {first:'Dennis', last:'Hua', table:'1'},
+      {first:'Christabel', last:'Supan', table:'1'},
+      {first:'Susan', last:'Kim', table:'1'},
+      {first:'Louis', last:'Nguyen', table:'1'},
+      {first:'Alyssa', last:'Schmid', table:'1'},
+      {first:'Katie', last:'Schmid', table:'1'},
+      {first:'Eric', last:'Schmid', table:'1'},
+      {first:'Harry', last:'Ly', table:'1'},
+      {first:'Kristy', last:'Duong', table:'1'},
+      {first:'Wyjun', last:'Cam', table:'1'},
+      {first:'Corrie', last:'Chan', table:'1'},
+      {first:'Phong', last:'Ly', table:'1'},
+      {first:'Remi', last:'Tran', table:'1'},
+      {first:'Raphael', last:'Tran', table:'1'},
+      {first:'Michelle', last:'Tran', table:'1'},
+      {first:'Steven', last:'Luu', table:'1'},
+      {first:'Kim', last:'Kha', table:'1'},
+      {first:'Jonathan', last:'Le', table:'1'},
+      {first:'Celena', last:'Kim', table:'1'},
+      {first:'Sang', last:'Kim', table:'1'},
+      {first:'Hoa', last:'Chhea', table:'1'},
+      {first:'Eric', last:'Xian', table:'1'},
+      {first:'Lynn', last:'Nguy', table:'1'},
+      {first:'Chuong', last:'Huynh', table:'1'},
+      {first:'Donna', last:'Tran', table:'1'},
+      {first:'Tan', last:'Huynh', table:'1'},
+      {first:'Wendy', last:'Nguy', table:'1'},
+      {first:'Long', last:'Lam', table:'1'},
+      {first:'Annie', last:'Kha', table:'1'},
+      {first:'Tom', last:'Tran', table:'1'},
+      {first:'Danny', last:'Lam', table:'1'},
+      {first:'Ngoc', last:'Lam', table:'1'},
+      {first:'Hang', last:'Sanchez', table:'1'},
+      {first:'Antonio', last:'Sanchez', table:'1'},
+      {first:'Lucas', last:'Sanchez', table:'1'},
+      {first:'Luna', last:'Sanchez', table:'1'},
+      {first:'Van', last:'Wan', table:'1'},
+      {first:'Matthew', last:'Wan', table:'1'},
+      {first:'Gavin', last:'Wan', table:'1'},
+      {first:'Kenzie', last:'Wan', table:'1'},
+      {first:'Wendy', last:'Luu', table:'1'},
+      {first:'Aaron', last:'Luu', table:'1'},
+      {first:'Tu', last:'Le', table:'1'},
+      {first:'Helen', last:'Van', table:'1'},
+      {first:'Taryn', last:'Van', table:'1'},
+      {first:'Hoa', last:'Van', table:'1'},
+      {first:'Xuyen', last:'Nguyen', table:'1'},
+      {first:'Hanh', last:'Le', table:'1'},
+      {first:'Linda', last:'Le', table:'1'},
+      {first:'Kyle', last:'Tran', table:'1'},
+      {first:'Huong', last:'Vu', table:'1'},
+      {first:'Tommy', last:'Vu', table:'1'},
+      {first:'Leyna', last:'Vu', table:'1'},
+      {first:'Madysen', last:'Vu', table:'1'},
+      {first:'Nataley', last:'Vu', table:'1'},
+      {first:'Tai', last:'Kha', table:'1'},
+      {first:'Melissa', last:'W', table:'1'},
+      {first:'Tin', last:'Kha', table:'1'},
+      {first:'Timothy', last:'Kha', table:'1'},
+      {first:'Stephanie', last:'Kha', table:'1'},
+      {first:'Nathan', last:'Kha', table:'1'},
+      {first:'Chieu', last:'Huynh', table:'1'},
+      {first:'Du Thanh', last:'Ton', table:'1'},
+      {first:'Kealy', last:'Ton', table:'1'},
+      {first:'Muoi', last:'Ho', table:'1'},
+      {first:'Nhu', last:'La', table:'1'},
+      {first:'Tony', last:'Ton', table:'1'},
+      {first:'Thanh', last:'La', table:'1'},
+      {first:'Huong', last:'Truong', table:'1'},
+      {first:'Phat', last:'Tran', table:'1'},
+      {first:'Huon', last:'Van', table:'1'},
+      {first:'Paul', last:'Thach', table:'1'},
+      {first:'Pauline', last:'Van', table:'1'},
+      {first:'Peter', last:'Van', table:'1'},
+      {first:'Hen', last:'Van', table:'1'},
+      {first:'Son', last:'Pham', table:'1'},
+      {first:'Linh', last:'Pham', table:'1'},
+      {first:'Hao', last:'Pham', table:'1'},
+      {first:'Ngoc', last:'Ly', table:'1'},
+      {first:'Vinh', last:'Van', table:'1'},
+      {first:'Celine', last:'Phan', table:'1'},
+      {first:'Luyen', last:'Lê', table:'1'},
+      {first:'Kim', last:'Tran', table:'1'},
+      {first:'Tri', last:'Ta', table:'1'},
+      {first:'Phuc', last:'Kha', table:'1'},
+      {first:'Amy', last:'Kha', table:'1'},
+      {first:'Ann', last:'Huynh', table:'1'},
+      {first:'Nhuan Xuong', last:'Luu', table:'1'},
+      {first:'Thi Hue', last:'Nguyen', table:'1'},
+      {first:'Jenny', last:'Pham Huynh', table:'1'},
+      {first:'Henry', last:'Huynh', table:'1'},
+      {first:'Son Long', last:'Ly', table:'1'},
+      {first:'Phuong', last:'Tran', table:'1'},
+      {first:'Cody', last:'Chau', table:'1'},
+      {first:'Vicky', last:'Lee', table:'1'},
+      {first:'Tyler', last:'Sunderman', table:'1'},
+      {first:'Duong', last:'Thay', table:'1'},
+      {first:'Sen', last:'Thay', table:'1'},
+      {first:'Lauren', last:'Chen', table:'1'},
+      {first:'Eileen', last:'Shipman', table:'1'},
+      {first:'Olivia', last:'Shipman', table:'1'},
+      {first:'Curtis', last:'Deephano', table:'1'},
+      {first:'Lillian', last:'Cai', table:'1'},
+      {first:'Thu', last:'Mai', table:'1'},
+      {first:'Kenny', last:'Yu', table:'1'},
+      {first:'Jana', last:'Ho See', table:'1'},
+      {first:'John', last:'Su', table:'1'},
+    ];
+
+    // ── Normalize: strip accents, lowercase, collapse spaces ──
+    function norm(s) {
+      return s
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    // ── Search ────────────────────────────────────────────────
+    function runSearch(rawQuery) {
+      const q = norm(rawQuery);
+      if (!q || q.length < 2) return null;
+      return guests.filter(g => {
+        const fn = norm(g.first), ln = norm(g.last);
+        return fn.includes(q) || ln.includes(q) || (fn + ' ' + ln).includes(q);
+      });
+    }
+
+    // ── Tablemates for a given guest ──────────────────────────
+    function getTablemates(guest) {
+      if (!guest.table) return [];
+      return guests
+        .filter(g => g.table === guest.table && !(norm(g.first) === norm(guest.first) && norm(g.last) === norm(guest.last)))
+        .sort((a, b) => {
+          const la = norm(a.last), lb = norm(b.last);
+          if (la !== lb) return la < lb ? -1 : 1;
+          return norm(a.first) < norm(b.first) ? -1 : 1;
+        });
+    }
+
+    // ── Row animation helper ──────────────────────────────────
+    function animateRows(card, expanding) {
+      const rows = card.querySelectorAll('.tablemate-row');
+      if (expanding) {
+        rows.forEach((row, i) => {
+          row.style.animation = 'none';
+          row.offsetHeight; // force reflow to restart animation
+          const delay = 60 + Math.min(i, 8) * 35;
+          row.style.animation = `row-in 200ms ease-out ${delay}ms both`;
+        });
+      } else {
+        rows.forEach(row => { row.style.animation = 'none'; });
+      }
+    }
+
+    // ── Render results ────────────────────────────────────────
+    const MAX_CARDS = 5;
+
+    const PLUS_SVG  = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="8" y1="2" x2="8" y2="14" stroke="#525d3c" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="8" x2="14" y2="8" stroke="#525d3c" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+    const MINUS_SVG = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="2" y1="8" x2="14" y2="8" stroke="#525d3c" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+
+    function renderResults(matches) {
+      const el = document.getElementById('resultsRegion');
+      if (matches === null) {
+        el.hidden = true;
+        el.innerHTML = '';
+        return;
+      }
+
+      el.hidden = false;
+
+      if (matches.length === 0) {
+        el.innerHTML = `
+          <div class="no-results-block">
+            <p class="no-results-title">No results :(</p>
+            <p class="no-results-sub">Try searching the primary guest in your party or browse the lists below.</p>
+          </div>`;
+        return;
+      }
+
+      const autoExpand = matches.length === 1;
+      const shown = matches.slice(0, MAX_CARDS);
+
+      el.innerHTML = shown.map((g, i) => {
+        const tablemates = getTablemates(g);
+        const isExpanded = autoExpand && i === 0;
+        const tableSuffix = g.table ? `Table ${escHtml(g.table)}` : '—';
+
+        const tableMatesHtml = tablemates.length > 0 ? `
+          <div class="result-card-tablemates">
+            <p class="tablemates-label">You're sitting with:</p>
+            <div class="tablemates-list">
+              ${tablemates.map(t => `
+                <div class="tablemate-row">
+                  <span class="tablemate-name">${escHtml(t.last)}, ${escHtml(t.first)}</span>
+                </div>`).join('')}
+            </div>
+          </div>` : '';
+
+        return `
+          <div class="result-card${isExpanded ? ' expanded' : ''}">
+            <button class="result-card-header" type="button" aria-expanded="${isExpanded}">
+              <div class="result-card-text">
+                <div class="result-text-wrap">
+                  <p class="result-name">${escHtml(g.last)}, ${escHtml(g.first)}</p>
+                </div>
+                <div class="result-text-wrap">
+                  <p class="result-table">${tableSuffix}</p>
+                </div>
+              </div>
+              <span class="result-chevron" aria-hidden="true">
+                <img src="../assets/card-chevron.svg" alt="">
+              </span>
+            </button>
+            <div class="result-card-body">
+              <div class="result-card-body-inner">
+                ${tableMatesHtml}
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      // Wire card expand/collapse
+      el.querySelectorAll('.result-card-header').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const card = btn.closest('.result-card');
+          const expanded = card.classList.toggle('expanded');
+          btn.setAttribute('aria-expanded', String(expanded));
+          animateRows(card, expanded);
+        });
+      });
+
+      // Animate rows on auto-expanded card after first render
+      if (autoExpand) {
+        requestAnimationFrame(() => {
+          const card = el.querySelector('.result-card.expanded');
+          if (card) animateRows(card, true);
+        });
+      }
+    }
+
+    // ── Build browse by table ─────────────────────────────────
+    function buildTableBrowse() {
+      const sorted = [...guests].sort((a, b) => {
+        const ta = parseInt(a.table, 10) || 0;
+        const tb = parseInt(b.table, 10) || 0;
+        if (ta !== tb) return ta - tb;
+        const la = norm(a.last), lb = norm(b.last);
+        if (la !== lb) return la < lb ? -1 : 1;
+        return norm(a.first) < norm(b.first) ? -1 : 1;
+      });
+
+      document.getElementById('tableList').innerHTML = sorted.map(g => {
+        const tbl = g.table ? `Table ${escHtml(g.table)}` : 'tbd';
+        return `
+          <div class="browse-item" role="listitem">
+            <span class="browse-col-table">${tbl}</span>
+            <span class="browse-col-name">${escHtml(g.last)}, ${escHtml(g.first)}</span>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Build browse by guest ─────────────────────────────────
+    function buildGuestBrowse() {
+      const sorted = [...guests].sort((a, b) => {
+        const la = norm(a.last), lb = norm(b.last);
+        if (la !== lb) return la < lb ? -1 : 1;
+        return norm(a.first) < norm(b.first) ? -1 : 1;
+      });
+
+      document.getElementById('guestList').innerHTML = sorted.map(g => {
+        const tbl = g.table ? `Table ${escHtml(g.table)}` : 'tbd';
+        return `
+          <div class="browse-item" role="listitem">
+            <span class="browse-col-name">${escHtml(g.last)}, ${escHtml(g.first)}</span>
+            <span class="browse-col-table">${tbl}</span>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Browse accordion ──────────────────────────────────────
+    function openBrowse(wrap, icon, toggle) {
+      wrap.classList.add('open');
+      toggle.setAttribute('aria-expanded', 'true');
+      icon.innerHTML = MINUS_SVG;
+    }
+
+    function closeBrowse(wrap, icon, toggle) {
+      wrap.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+      icon.innerHTML = PLUS_SVG;
+    }
+
+    // ── Event wiring ──────────────────────────────────────────
+    const searchInput    = document.getElementById('searchInput');
+    const searchBtn      = document.getElementById('searchBtn');
+    const tableToggle    = document.getElementById('tableToggle');
+    const tableListWrap  = document.getElementById('tableListWrap');
+    const tableIcon      = document.getElementById('tableIcon');
+    const guestToggle    = document.getElementById('guestToggle');
+    const guestListWrap  = document.getElementById('guestListWrap');
+    const guestIcon      = document.getElementById('guestIcon');
+
+    searchInput.addEventListener('input', () => {
+      renderResults(runSearch(searchInput.value));
+    });
+
+    searchBtn.addEventListener('click', () => {
+      renderResults(runSearch(searchInput.value));
+      searchInput.focus();
+    });
+
+    searchInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') renderResults(runSearch(searchInput.value));
+    });
+
+    tableToggle.addEventListener('click', () => {
+      const willOpen = !tableListWrap.classList.contains('open');
+      closeBrowse(guestListWrap, guestIcon, guestToggle);
+      if (willOpen) openBrowse(tableListWrap, tableIcon, tableToggle);
+      else closeBrowse(tableListWrap, tableIcon, tableToggle);
+    });
+
+    guestToggle.addEventListener('click', () => {
+      const willOpen = !guestListWrap.classList.contains('open');
+      closeBrowse(tableListWrap, tableIcon, tableToggle);
+      if (willOpen) openBrowse(guestListWrap, guestIcon, guestToggle);
+      else closeBrowse(guestListWrap, guestIcon, guestToggle);
+    });
+
+    buildTableBrowse();
+    buildGuestBrowse();
+  </script>
+</body>
+</html>
